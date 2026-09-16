@@ -2,277 +2,312 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Live Telestrator & Video Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Broadcast Telestrator & Media Player</title>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      user-select: none;
     }
 
-    body {
-      background-color: #121212;
-      color: #eee;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      display: flex;
-      height: 100vh;
+    body, html {
+      width: 100%;
+      height: 100%;
+      background-color: #000;
       overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
-    /* Sidebar Playlist */
-    #sidebar {
-      width: 280px;
-      background: #1e1e1e;
-      border-right: 1px solid #333;
+    #stage {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    video, img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      display: block;
+      pointer-events: none;
+      object-fit: contain;
+    }
+
+    #imagePlayer {
+      display: none;
+    }
+
+    canvas {
+      position: absolute;
+      cursor: crosshair;
+      z-index: 10;
+    }
+
+    /* Floating UI Elements */
+    .hud {
+      position: absolute;
+      z-index: 30;
+      opacity: 1;
+      transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      pointer-events: auto;
+    }
+
+    body.ui-hidden .hud {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    body.ui-hidden {
+      cursor: none;
+    }
+
+    /* Left Minimalist Playlist Dock */
+    #playlistDock {
+      top: 24px;
+      left: 24px;
       display: flex;
       flex-direction: column;
-      padding: 15px;
-      gap: 12px;
-      flex-shrink: 0;
+      align-items: center;
+      gap: 10px;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      scrollbar-width: none;
     }
 
-    #sidebar h2 {
-      font-size: 16px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #aaa;
+    #playlistDock::-webkit-scrollbar {
+      display: none;
     }
 
-    .file-upload-btn {
-      display: inline-block;
-      padding: 8px 12px;
-      background: #007acc;
-      color: #fff;
-      text-align: center;
-      border-radius: 4px;
+    .glass-btn {
+      background: rgba(18, 18, 18, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
       cursor: pointer;
-      font-weight: bold;
-      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s ease;
     }
 
-    .file-upload-btn:hover {
-      background: #005f9e;
+    .glass-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: scale(1.06);
+    }
+
+    .add-btn {
+      width: 44px;
+      height: 44px;
+      font-size: 24px;
+      font-weight: 300;
+      line-height: 1;
     }
 
     #fileInput {
       display: none;
     }
 
-    #playlist {
-      list-style: none;
-      overflow-y: auto;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    .clip-btn {
+      width: 38px;
+      height: 38px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
     }
 
-    #playlist li {
-      padding: 8px 10px;
-      background: #2a2a2a;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      transition: background 0.15s;
-    }
-
-    #playlist li:hover {
-      background: #383838;
-    }
-
-    #playlist li.active {
-      background: #007acc;
+    .clip-btn.active {
+      background: rgba(0, 150, 255, 0.55);
+      border-color: rgba(0, 195, 255, 0.85);
       color: #fff;
+      box-shadow: 0 0 14px rgba(0, 150, 255, 0.6);
     }
 
-    /* Main Player & Stage */
-    #main {
-      flex: 1;
+    /* Bottom Control Bar */
+    #bottomHud {
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
       flex-direction: column;
-      height: 100%;
-      background: #000;
+      align-items: center;
+      gap: 8px;
+      width: 92%;
+      max-width: 1040px;
     }
 
-    #stage {
-      position: relative;
-      flex: 1;
+    .scrub-container {
+      width: 100%;
       display: flex;
       align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    video {
-      max-width: 100%;
-      max-height: 100%;
-      display: block;
-    }
-
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      cursor: crosshair;
-      z-index: 10;
-    }
-
-    /* Toolbar / Controls */
-    #controls {
-      background: #1a1a1a;
-      border-top: 1px solid #333;
-      padding: 10px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 20;
-    }
-
-    .progress-bar-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      gap: 12px;
+      background: rgba(18, 18, 18, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 6px 16px;
+      border-radius: 30px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
 
     #scrubBar {
       flex: 1;
-      accent-color: #007acc;
+      accent-color: #0096ff;
       cursor: pointer;
+      height: 4px;
     }
 
     #timeDisplay {
       font-size: 12px;
-      font-family: monospace;
-      color: #aaa;
-      min-width: 90px;
+      font-family: ui-monospace, "SF Mono", monospace;
+      color: rgba(255, 255, 255, 0.7);
+      min-width: 85px;
+      text-align: right;
     }
 
-    .button-group {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .playback-tools, .draw-tools {
+    .controls-pill {
       display: flex;
       align-items: center;
       gap: 8px;
+      background: rgba(18, 18, 18, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 8px 18px;
+      border-radius: 40px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
 
-    button {
-      background: #2e2e2e;
-      color: #eee;
-      border: 1px solid #444;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
+    .pill-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.85);
+      padding: 6px 10px;
       font-size: 13px;
       font-weight: 500;
-      transition: background 0.15s;
-    }
-
-    button:hover {
-      background: #3e3e3e;
-    }
-
-    button.active {
-      background: #007acc;
-      border-color: #007acc;
-      color: #fff;
-    }
-
-    .divider {
-      width: 1px;
-      height: 20px;
-      background: #444;
-      margin: 0 4px;
-    }
-
-    label {
-      font-size: 13px;
-      color: #aaa;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s ease;
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    input[type="color"] {
-      border: none;
-      width: 28px;
-      height: 28px;
-      border-radius: 4px;
-      cursor: pointer;
-      background: transparent;
+    .pill-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
     }
 
-    input[type="range"] {
-      accent-color: #007acc;
+    .pill-btn.active {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .pill-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .divider {
+      width: 1px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 0 2px;
+    }
+
+    input[type="color"] {
+      -webkit-appearance: none;
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      background: transparent;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 50%;
+    }
+
+    input[type="range"]#lineWidth {
+      width: 60px;
+      accent-color: #0096ff;
     }
   </style>
 </head>
 <body>
 
-  <!-- Playlist Sidebar -->
-  <div id="sidebar">
-    <h2>Video Queue</h2>
-    <label class="file-upload-btn" for="fileInput">+ Add Local Videos</label>
-    <input type="file" id="fileInput" accept="video/*" multiple>
-    <ul id="playlist"></ul>
+  <div id="stage">
+    <video id="videoPlayer" playsinline></video>
+    <img id="imagePlayer" alt="Static Media">
+    <canvas id="canvasOverlay"></canvas>
   </div>
 
-  <!-- Main Screen & Canvas -->
-  <div id="main">
-    <div id="stage">
-      <video id="videoPlayer" playsinline></video>
-      <canvas id="canvasOverlay"></canvas>
+  <!-- Minimal Playlist Dock -->
+  <div id="playlistDock" class="hud">
+    <label class="glass-btn add-btn" for="fileInput" title="Add Videos or Images">+</label>
+    <input type="file" id="fileInput" accept="video/*,image/*" multiple>
+    <div id="clipList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+  </div>
+
+  <!-- Floating HUD -->
+  <div id="bottomHud" class="hud">
+    <div class="scrub-container">
+      <input type="range" id="scrubBar" value="0" min="0" step="0.01">
+      <span id="timeDisplay">0:00 / 0:00</span>
     </div>
 
-    <!-- Bottom Controls -->
-    <div id="controls">
-      <!-- Scrubber -->
-      <div class="progress-bar-container">
-        <input type="range" id="scrubBar" value="0" min="0" step="0.01">
-        <span id="timeDisplay">0:00 / 0:00</span>
-      </div>
+    <div class="controls-pill">
+      <button class="pill-btn" id="btnRewind" title="Rewind 5s">⏪ -5s</button>
+      <button class="pill-btn" id="btnPlayPause">▶ Play</button>
+      <button class="pill-btn" id="btnForward" title="Forward 5s">+5s ⏩</button>
 
-      <!-- Playback and Drawing buttons -->
-      <div class="button-group">
-        <div class="playback-tools">
-          <button id="btnRewind" title="Rewind 5s">⏪ -5s</button>
-          <button id="btnPlayPause">▶ Play</button>
-          <button id="btnForward" title="Forward 5s">+5s ⏩</button>
-        </div>
+      <div class="divider"></div>
 
-        <div class="draw-tools">
-          <label>
-            Color:
-            <input type="color" id="colorPicker" value="#ffeb3b">
-          </label>
+      <!-- Default Red -->
+      <input type="color" id="colorPicker" value="#ff0000" title="Pen Color">
+      <!-- Default 50% line thickness (14 on 3-24 scale) -->
+      <input type="range" id="lineWidth" min="3" max="24" value="14" title="Line Width">
 
-          <label>
-            Thickness:
-            <input type="range" id="lineWidth" min="2" max="24" value="5" style="width: 70px;">
-          </label>
+      <div class="divider"></div>
 
-          <div class="divider"></div>
+      <button class="pill-btn active" id="btnToolDraw">✏️ Pen</button>
+      <button class="pill-btn" id="btnToolArrow">➡️ Arrow</button>
+      <button class="pill-btn" id="btnToolCircle">⭕ Circle</button>
+      <button class="pill-btn" id="btnToolZone" title="Click 4 points to draw a zone">📐 Zone</button>
 
-          <button id="btnToolDraw" class="active">✏️ Pen</button>
-          <button id="btnToolArrow">➡️ Arrow</button>
-          <button id="btnClear" style="color: #ff5252; border-color: #552222;">Clear Drawings</button>
-        </div>
-      </div>
+      <div class="divider"></div>
+
+      <button class="pill-btn" id="btnUndo" title="Undo Last Drawing (Ctrl+Z)">↩️ Undo</button>
+      <button class="pill-btn" id="btnClear" style="color: #ff6b6b;">Clear</button>
     </div>
   </div>
 
   <script>
     const fileInput = document.getElementById('fileInput');
-    const playlist = document.getElementById('playlist');
+    const clipList = document.getElementById('clipList');
     const video = document.getElementById('videoPlayer');
+    const imagePlayer = document.getElementById('imagePlayer');
     const canvas = document.getElementById('canvasOverlay');
     const ctx = canvas.getContext('2d');
 
@@ -286,18 +321,49 @@
     const lineWidthInput = document.getElementById('lineWidth');
     const btnToolDraw = document.getElementById('btnToolDraw');
     const btnToolArrow = document.getElementById('btnToolArrow');
+    const btnToolCircle = document.getElementById('btnToolCircle');
+    const btnToolZone = document.getElementById('btnToolZone');
+    const btnUndo = document.getElementById('btnUndo');
     const btnClear = document.getElementById('btnClear');
 
-    let videoQueue = [];
-    let activeTool = 'draw'; // 'draw' or 'arrow'
+    let mediaQueue = [];
+    let currentMedia = null;
+    let activeTool = 'draw'; // 'draw', 'arrow', 'circle', 'zone'
     let isDrawing = false;
     let startX = 0;
     let startY = 0;
-    let snapshot = null; // Used for live preview of arrows
+    let snapshot = null;
 
-    // Resize canvas precisely over the visible video rect
-    function matchCanvasToVideo() {
-      const rect = video.getBoundingClientRect();
+    // Undo History Stack
+    let undoStack = [];
+    const MAX_UNDO = 30;
+
+    // 4-Point Zone state
+    let zonePoints = [];
+    let zoneSnapshot = null;
+
+    // --- Inactivity UI Auto-Hide (5 Seconds) ---
+    let hideTimeout;
+
+    function resetUiTimeout() {
+      document.body.classList.remove('ui-hidden');
+      clearTimeout(hideTimeout);
+      hideTimeout = setTimeout(() => {
+        if (!isDrawing && zonePoints.length === 0) {
+          document.body.classList.add('ui-hidden');
+        }
+      }, 5000);
+    }
+
+    ['mousemove', 'mousedown', 'keydown', 'touchstart'].forEach(evt => {
+      window.addEventListener(evt, resetUiTimeout);
+    });
+    resetUiTimeout();
+
+    // --- Precise Canvas Alignment ---
+    function matchCanvasToMedia() {
+      const activeElement = (currentMedia && currentMedia.type === 'image') ? imagePlayer : video;
+      const rect = activeElement.getBoundingClientRect();
       const stageRect = document.getElementById('stage').getBoundingClientRect();
 
       canvas.style.top = (rect.top - stageRect.top) + 'px';
@@ -305,54 +371,95 @@
       canvas.style.width = rect.width + 'px';
       canvas.style.height = rect.height + 'px';
 
-      // Set actual pixel dimensions to match element size for high sharpness
+      // Recreate backing buffer preserving drawing contents if dimensions changed
+      const prevCanvas = document.createElement('canvas');
+      prevCanvas.width = canvas.width;
+      prevCanvas.height = canvas.height;
+      const prevCtx = prevCanvas.getContext('2d');
+      if (canvas.width > 0 && canvas.height > 0) {
+        prevCtx.drawImage(canvas, 0, 0);
+      }
+
       canvas.width = rect.width;
       canvas.height = rect.height;
+
+      if (prevCanvas.width > 0 && prevCanvas.height > 0) {
+        ctx.drawImage(prevCanvas, 0, 0, canvas.width, canvas.height);
+      }
     }
 
-    window.addEventListener('resize', matchCanvasToVideo);
-    video.addEventListener('loadedmetadata', matchCanvasToVideo);
+    window.addEventListener('resize', matchCanvasToMedia);
+    video.addEventListener('loadedmetadata', matchCanvasToMedia);
+    imagePlayer.addEventListener('load', matchCanvasToMedia);
 
-    // Handle Local File Queue
+    // --- Local Playlist Queue (Videos & Images) ---
     fileInput.addEventListener('change', (e) => {
       const files = Array.from(e.target.files);
       if (!files.length) return;
 
       files.forEach((file) => {
+        const isImage = file.type.startsWith('image/');
         const item = {
           name: file.name,
-          url: URL.createObjectURL(file)
+          url: URL.createObjectURL(file),
+          type: isImage ? 'image' : 'video'
         };
-        videoQueue.push(item);
+        mediaQueue.push(item);
 
-        const li = document.createElement('li');
-        li.textContent = item.name;
-        li.title = item.name;
-        li.addEventListener('click', () => playClip(item, li));
-        playlist.appendChild(li);
+        const index = mediaQueue.length;
+        const btn = document.createElement('button');
+        btn.className = 'glass-btn clip-btn';
+        btn.textContent = index;
+        btn.title = `${item.name} (${item.type})`;
+        btn.addEventListener('click', () => playMedia(item, btn));
+        clipList.appendChild(btn);
       });
 
-      // Auto-load first clip if nothing is currently playing
-      if (!video.src && videoQueue.length > 0) {
-        playClip(videoQueue[0], playlist.children[0]);
+      if (!currentMedia && mediaQueue.length > 0) {
+        playMedia(mediaQueue[0], clipList.children[0]);
       }
     });
 
-    function playClip(clip, element) {
-      document.querySelectorAll('#playlist li').forEach(el => el.classList.remove('active'));
-      if (element) element.classList.add('active');
+    function playMedia(item, btnElement) {
+      document.querySelectorAll('.clip-btn').forEach(b => b.classList.remove('active'));
+      if (btnElement) btnElement.classList.add('active');
 
-      video.src = clip.url;
+      currentMedia = item;
       clearCanvas();
-      video.play().then(() => {
-        btnPlayPause.textContent = '⏸ Pause';
-      }).catch(() => {
-        btnPlayPause.textContent = '▶ Play';
-      });
+
+      if (item.type === 'image') {
+        video.pause();
+        video.style.display = 'none';
+        imagePlayer.style.display = 'block';
+        imagePlayer.src = item.url;
+
+        btnPlayPause.disabled = true;
+        btnRewind.disabled = true;
+        btnForward.disabled = true;
+        scrubBar.disabled = true;
+        btnPlayPause.textContent = '🖼 Image';
+        timeDisplay.textContent = 'STATIC';
+      } else {
+        imagePlayer.style.display = 'none';
+        video.style.display = 'block';
+        video.src = item.url;
+
+        btnPlayPause.disabled = false;
+        btnRewind.disabled = false;
+        btnForward.disabled = false;
+        scrubBar.disabled = false;
+
+        video.play().then(() => {
+          btnPlayPause.textContent = '⏸ Pause';
+        }).catch(() => {
+          btnPlayPause.textContent = '▶ Play';
+        });
+      }
     }
 
-    // Playback Controls
+    // --- Playback Controls ---
     btnPlayPause.addEventListener('click', () => {
+      if (!currentMedia || currentMedia.type === 'image') return;
       if (video.paused || video.ended) {
         video.play();
         btnPlayPause.textContent = '⏸ Pause';
@@ -363,15 +470,17 @@
     });
 
     btnRewind.addEventListener('click', () => {
+      if (!currentMedia || currentMedia.type === 'image') return;
       video.currentTime = Math.max(0, video.currentTime - 5);
     });
 
     btnForward.addEventListener('click', () => {
+      if (!currentMedia || currentMedia.type === 'image') return;
       video.currentTime = Math.min(video.duration, video.currentTime + 5);
     });
 
     video.addEventListener('timeupdate', () => {
-      if (!video.duration) return;
+      if (!video.duration || (currentMedia && currentMedia.type === 'image')) return;
       scrubBar.value = (video.currentTime / video.duration) * 100;
 
       const curMins = Math.floor(video.currentTime / 60);
@@ -382,55 +491,150 @@
     });
 
     scrubBar.addEventListener('input', () => {
-      if (video.duration) {
+      if (video.duration && currentMedia && currentMedia.type === 'video') {
         video.currentTime = (scrubBar.value / 100) * video.duration;
       }
     });
 
-    // Drawing Tool Selection
-    btnToolDraw.addEventListener('click', () => {
-      activeTool = 'draw';
-      btnToolDraw.classList.add('active');
-      btnToolArrow.classList.remove('active');
-    });
+    // --- Tool Switching ---
+    function cancelZone() {
+      if (zoneSnapshot) {
+        ctx.putImageData(zoneSnapshot, 0, 0);
+      }
+      zonePoints = [];
+      zoneSnapshot = null;
+    }
 
-    btnToolArrow.addEventListener('click', () => {
-      activeTool = 'arrow';
-      btnToolArrow.classList.add('active');
-      btnToolDraw.classList.remove('active');
-    });
+    function setActiveTool(tool) {
+      if (zonePoints.length > 0) {
+        cancelZone();
+      }
+      activeTool = tool;
+      btnToolDraw.classList.toggle('active', tool === 'draw');
+      btnToolArrow.classList.toggle('active', tool === 'arrow');
+      btnToolCircle.classList.toggle('active', tool === 'circle');
+      btnToolZone.classList.toggle('active', tool === 'zone');
+    }
+
+    btnToolDraw.addEventListener('click', () => setActiveTool('draw'));
+    btnToolArrow.addEventListener('click', () => setActiveTool('arrow'));
+    btnToolCircle.addEventListener('click', () => setActiveTool('circle'));
+    btnToolZone.addEventListener('click', () => setActiveTool('zone'));
+
+    // --- Undo Management ---
+    function pushUndoState() {
+      if (canvas.width === 0 || canvas.height === 0) return;
+      const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      undoStack.push(currentState);
+      if (undoStack.length > MAX_UNDO) {
+        undoStack.shift();
+      }
+    }
+
+    function undoLast() {
+      if (zonePoints.length > 0) {
+        cancelZone();
+        return;
+      }
+      if (undoStack.length > 0) {
+        const lastState = undoStack.pop();
+        ctx.putImageData(lastState, 0, 0);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      resetUiTimeout();
+    }
+
+    btnUndo.addEventListener('click', undoLast);
 
     btnClear.addEventListener('click', clearCanvas);
 
     function clearCanvas() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (canvas.width > 0 && canvas.height > 0) {
+        pushUndoState();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      zonePoints = [];
+      zoneSnapshot = null;
     }
 
-    // Helper: Draw Arrowhead
+    function hexToRgba25(hex) {
+      let c = hex.replace('#', '');
+      if (c.length === 3) c = c.split('').map(x => x + x).join('');
+      const num = parseInt(c, 16);
+      const r = (num >> 16) & 255;
+      const g = (num >> 8) & 255;
+      const b = num & 255;
+      return `rgba(${r}, ${g}, ${b}, 0.25)`;
+    }
+
+    // --- Sharp Broadcast Arrow ---
     function drawArrow(fromX, fromY, toX, toY, color, width) {
-      const headLength = Math.max(15, width * 3);
       const angle = Math.atan2(toY - fromY, toX - fromX);
+      const dist = Math.hypot(toX - fromX, toY - fromY);
+      if (dist < 4) return;
+
+      const headLength = Math.max(22, width * 2.8);
+      const headWidth = Math.max(20, width * 2.5);
+      const actualHeadLen = Math.min(headLength, dist);
+
+      const shaftEndX = toX - (actualHeadLen * 0.7) * Math.cos(angle);
+      const shaftEndY = toY - (actualHeadLen * 0.7) * Math.sin(angle);
 
       ctx.beginPath();
       ctx.moveTo(fromX, fromY);
-      ctx.lineTo(toX, toY);
+      ctx.lineTo(shaftEndX, shaftEndY);
       ctx.strokeStyle = color;
       ctx.lineWidth = width;
       ctx.lineCap = 'round';
       ctx.stroke();
 
-      // Head
+      const leftX = toX - actualHeadLen * Math.cos(angle) + (headWidth / 2) * Math.sin(angle);
+      const leftY = toY - actualHeadLen * Math.sin(angle) - (headWidth / 2) * Math.cos(angle);
+      const rightX = toX - actualHeadLen * Math.cos(angle) - (headWidth / 2) * Math.sin(angle);
+      const rightY = toY - actualHeadLen * Math.sin(angle) + (headWidth / 2) * Math.cos(angle);
+
       ctx.beginPath();
       ctx.moveTo(toX, toY);
-      ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
-      ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+      ctx.lineTo(leftX, leftY);
+      ctx.lineTo(rightX, rightY);
       ctx.closePath();
       ctx.fillStyle = color;
       ctx.fill();
     }
 
-    // Canvas Draw Events
-    function getCanvasCoords(e) {
+    function drawCircle(centerX, centerY, radius, color, width) {
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, Math.abs(radius), 0, 2 * Math.PI);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    function completeZone() {
+      if (zoneSnapshot) ctx.putImageData(zoneSnapshot, 0, 0);
+
+      ctx.beginPath();
+      ctx.moveTo(zonePoints[0].x, zonePoints[0].y);
+      for (let i = 1; i < zonePoints.length; i++) {
+        ctx.lineTo(zonePoints[i].x, zonePoints[i].y);
+      }
+      ctx.closePath();
+
+      ctx.fillStyle = hexToRgba25(colorPicker.value);
+      ctx.fill();
+
+      ctx.strokeStyle = colorPicker.value;
+      ctx.lineWidth = lineWidthInput.value;
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      zonePoints = [];
+      zoneSnapshot = null;
+      resetUiTimeout();
+    }
+
+    function getCoords(e) {
       const rect = canvas.getBoundingClientRect();
       return {
         x: (e.clientX - rect.left) * (canvas.width / rect.width),
@@ -438,19 +642,36 @@
       };
     }
 
+    // --- Drawing Events ---
     canvas.addEventListener('mousedown', (e) => {
-      // Auto-pause video when starting to draw
-      if (!video.paused) {
+      if (currentMedia && currentMedia.type === 'video' && !video.paused) {
         video.pause();
         btnPlayPause.textContent = '▶ Play';
       }
 
+      const coords = getCoords(e);
+
+      if (activeTool === 'zone') {
+        if (zonePoints.length === 0) {
+          pushUndoState();
+          zoneSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+        zonePoints.push(coords);
+
+        if (zonePoints.length === 4) {
+          completeZone();
+        }
+        return;
+      }
+
+      // Save undo checkpoint right before new stroke begins
+      pushUndoState();
+
       isDrawing = true;
-      const coords = getCanvasCoords(e);
       startX = coords.x;
       startY = coords.y;
 
-      if (activeTool === 'arrow') {
+      if (activeTool === 'arrow' || activeTool === 'circle') {
         snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
       } else {
         ctx.beginPath();
@@ -459,8 +680,30 @@
     });
 
     canvas.addEventListener('mousemove', (e) => {
+      const coords = getCoords(e);
+
+      if (activeTool === 'zone' && zonePoints.length > 0 && zonePoints.length < 4 && zoneSnapshot) {
+        ctx.putImageData(zoneSnapshot, 0, 0);
+
+        ctx.beginPath();
+        ctx.moveTo(zonePoints[0].x, zonePoints[0].y);
+        for (let i = 1; i < zonePoints.length; i++) {
+          ctx.lineTo(zonePoints[i].x, zonePoints[i].y);
+        }
+        ctx.lineTo(coords.x, coords.y);
+        ctx.closePath();
+
+        ctx.fillStyle = hexToRgba25(colorPicker.value);
+        ctx.fill();
+
+        ctx.strokeStyle = colorPicker.value;
+        ctx.lineWidth = lineWidthInput.value;
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+        return;
+      }
+
       if (!isDrawing) return;
-      const coords = getCanvasCoords(e);
 
       if (activeTool === 'draw') {
         ctx.lineTo(coords.x, coords.y);
@@ -470,21 +713,35 @@
         ctx.lineJoin = 'round';
         ctx.stroke();
       } else if (activeTool === 'arrow') {
-        ctx.putImageData(snapshot, 0, 0); // Restore previous state to preview dynamic arrow
+        ctx.putImageData(snapshot, 0, 0);
         drawArrow(startX, startY, coords.x, coords.y, colorPicker.value, lineWidthInput.value);
+      } else if (activeTool === 'circle') {
+        ctx.putImageData(snapshot, 0, 0);
+        const radius = Math.hypot(coords.x - startX, coords.y - startY);
+        drawCircle(startX, startY, radius, colorPicker.value, lineWidthInput.value);
       }
     });
 
     window.addEventListener('mouseup', () => {
-      if (!isDrawing) return;
-      isDrawing = false;
+      if (activeTool !== 'zone' && isDrawing) {
+        isDrawing = false;
+        resetUiTimeout();
+      }
     });
 
-    // Keyboard Shortcuts (Space to toggle Play/Pause, C to Clear)
+    // Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') {
+      // Ctrl+Z or Cmd+Z for Undo
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        undoLast();
+      } else if (e.code === 'Space') {
         e.preventDefault();
         btnPlayPause.click();
+      } else if (e.code === 'Escape') {
+        if (activeTool === 'zone' && zonePoints.length > 0) {
+          cancelZone();
+        }
       } else if (e.key.toLowerCase() === 'c') {
         clearCanvas();
       }
