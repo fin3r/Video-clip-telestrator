@@ -17,7 +17,7 @@
       height: 100%;
       background-color: #000;
       overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
     #stage {
@@ -68,14 +68,14 @@
       cursor: none;
     }
 
-    /* Left Minimalist Playlist Dock */
+    /* Minimalist Translucent Playlist Dock */
     #playlistDock {
       top: 24px;
       left: 24px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       max-height: calc(100vh - 120px);
       overflow-y: auto;
       scrollbar-width: none;
@@ -86,31 +86,31 @@
     }
 
     .glass-btn {
-      background: rgba(18, 18, 18, 0.45);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: rgba(255, 255, 255, 0.85);
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.75);
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
       transition: all 0.2s ease;
     }
 
     .glass-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.12);
       color: #fff;
-      border-color: rgba(255, 255, 255, 0.3);
-      transform: scale(1.06);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
     }
 
     .add-btn {
-      width: 44px;
-      height: 44px;
-      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
       font-weight: 300;
       line-height: 1;
     }
@@ -120,18 +120,17 @@
     }
 
     .clip-btn {
-      width: 38px;
-      height: 38px;
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: -0.5px;
+      width: 34px;
+      height: 34px;
+      font-size: 13px;
+      font-weight: 500;
     }
 
     .clip-btn.active {
-      background: rgba(0, 150, 255, 0.55);
-      border-color: rgba(0, 195, 255, 0.85);
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.6);
       color: #fff;
-      box-shadow: 0 0 14px rgba(0, 150, 255, 0.6);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     }
 
     /* Bottom Control Bar */
@@ -144,7 +143,7 @@
       align-items: center;
       gap: 8px;
       width: 92%;
-      max-width: 1040px;
+      max-width: 980px;
     }
 
     .scrub-container {
@@ -152,87 +151,103 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      background: rgba(18, 18, 18, 0.45);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       padding: 6px 16px;
       border-radius: 30px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     }
 
     #scrubBar {
       flex: 1;
-      accent-color: #0096ff;
+      accent-color: #ffffff;
       cursor: pointer;
-      height: 4px;
+      height: 3px;
     }
 
     #timeDisplay {
-      font-size: 12px;
+      font-size: 11px;
       font-family: ui-monospace, "SF Mono", monospace;
-      color: rgba(255, 255, 255, 0.7);
-      min-width: 85px;
+      color: rgba(255, 255, 255, 0.6);
+      min-width: 80px;
       text-align: right;
+      letter-spacing: 0.5px;
     }
 
     .controls-pill {
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: rgba(18, 18, 18, 0.45);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 8px 18px;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 6px 16px;
       border-radius: 40px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     }
 
     .pill-btn {
       background: transparent;
       border: none;
-      color: rgba(255, 255, 255, 0.85);
+      color: rgba(255, 255, 255, 0.7);
       padding: 6px 10px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
+      letter-spacing: 0.3px;
       border-radius: 20px;
       cursor: pointer;
       transition: all 0.15s ease;
       display: flex;
       align-items: center;
-      gap: 6px;
     }
 
     .pill-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.1);
       color: #fff;
     }
 
     .pill-btn.active {
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.2);
       color: #fff;
       font-weight: 600;
     }
 
     .pill-btn:disabled {
-      opacity: 0.35;
+      opacity: 0.25;
       cursor: not-allowed;
+    }
+
+    /* Record Button Monochromatic Pulse */
+    #btnRecord.recording {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+      font-weight: 600;
+      animation: pulse 1.6s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
     }
 
     .divider {
       width: 1px;
-      height: 18px;
-      background: rgba(255, 255, 255, 0.2);
+      height: 16px;
+      background: rgba(255, 255, 255, 0.12);
       margin: 0 2px;
     }
 
+    /* The only colored element on screen */
     input[type="color"] {
       -webkit-appearance: none;
       appearance: none;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      width: 24px;
-      height: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       cursor: pointer;
       background: transparent;
@@ -250,8 +265,8 @@
     }
 
     input[type="range"]#lineWidth {
-      width: 60px;
-      accent-color: #0096ff;
+      width: 50px;
+      accent-color: #ffffff;
     }
   </style>
 </head>
@@ -265,7 +280,7 @@
 
   <!-- Minimal Playlist Dock -->
   <div id="playlistDock" class="hud">
-    <label class="glass-btn add-btn" for="fileInput" title="Add Videos or Images">+</label>
+    <label class="glass-btn add-btn" for="fileInput" title="Add Media">+</label>
     <input type="file" id="fileInput" accept="video/*,image/*" multiple>
     <div id="clipList" style="display: flex; flex-direction: column; gap: 8px;"></div>
   </div>
@@ -278,28 +293,31 @@
     </div>
 
     <div class="controls-pill">
-      <button class="pill-btn" id="btnRewind" title="Rewind 5s">⏪ -5s</button>
-      <button class="pill-btn" id="btnPlayPause">▶ Play</button>
-      <button class="pill-btn" id="btnForward" title="Forward 5s">+5s ⏩</button>
+      <button class="pill-btn" id="btnRewind" title="Rewind 5s">-5s</button>
+      <button class="pill-btn" id="btnPlayPause">Play</button>
+      <button class="pill-btn" id="btnForward" title="Forward 5s">+5s</button>
 
       <div class="divider"></div>
 
-      <!-- Default Red -->
+      <!-- Lone color swatch -->
       <input type="color" id="colorPicker" value="#ff0000" title="Pen Color">
-      <!-- Default 50% line thickness (14 on 3-24 scale) -->
       <input type="range" id="lineWidth" min="3" max="24" value="14" title="Line Width">
 
       <div class="divider"></div>
 
-      <button class="pill-btn active" id="btnToolDraw">✏️ Pen</button>
-      <button class="pill-btn" id="btnToolArrow">➡️ Arrow</button>
-      <button class="pill-btn" id="btnToolCircle">⭕ Circle</button>
-      <button class="pill-btn" id="btnToolZone" title="Click 4 points to draw a zone">📐 Zone</button>
+      <button class="pill-btn active" id="btnToolDraw">Pen</button>
+      <button class="pill-btn" id="btnToolArrow">Arrow</button>
+      <button class="pill-btn" id="btnToolCircle">Circle</button>
+      <button class="pill-btn" id="btnToolZone" title="Click 4 points to define a zone">Zone</button>
 
       <div class="divider"></div>
 
-      <button class="pill-btn" id="btnUndo" title="Undo Last Drawing (Ctrl+Z)">↩️ Undo</button>
-      <button class="pill-btn" id="btnClear" style="color: #ff6b6b;">Clear</button>
+      <button class="pill-btn" id="btnUndo" title="Undo (Ctrl+Z)">Undo</button>
+      <button class="pill-btn" id="btnClear">Clear</button>
+
+      <div class="divider"></div>
+
+      <button class="pill-btn" id="btnRecord" title="Record Screen/Tab as H.264">Rec</button>
     </div>
   </div>
 
@@ -325,22 +343,28 @@
     const btnToolZone = document.getElementById('btnToolZone');
     const btnUndo = document.getElementById('btnUndo');
     const btnClear = document.getElementById('btnClear');
+    const btnRecord = document.getElementById('btnRecord');
 
     let mediaQueue = [];
     let currentMedia = null;
-    let activeTool = 'draw'; // 'draw', 'arrow', 'circle', 'zone'
+    let activeTool = 'draw';
     let isDrawing = false;
     let startX = 0;
     let startY = 0;
     let snapshot = null;
 
-    // Undo History Stack
+    // Undo Stack
     let undoStack = [];
     const MAX_UNDO = 30;
 
-    // 4-Point Zone state
+    // 4-Point Zone
     let zonePoints = [];
     let zoneSnapshot = null;
+
+    // Screen Recording State
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let recordStream = null;
 
     // --- Inactivity UI Auto-Hide (5 Seconds) ---
     let hideTimeout;
@@ -371,7 +395,6 @@
       canvas.style.width = rect.width + 'px';
       canvas.style.height = rect.height + 'px';
 
-      // Recreate backing buffer preserving drawing contents if dimensions changed
       const prevCanvas = document.createElement('canvas');
       prevCanvas.width = canvas.width;
       prevCanvas.height = canvas.height;
@@ -392,7 +415,7 @@
     video.addEventListener('loadedmetadata', matchCanvasToMedia);
     imagePlayer.addEventListener('load', matchCanvasToMedia);
 
-    // --- Local Playlist Queue (Videos & Images) ---
+    // --- Media Queue ---
     fileInput.addEventListener('change', (e) => {
       const files = Array.from(e.target.files);
       if (!files.length) return;
@@ -437,7 +460,7 @@
         btnRewind.disabled = true;
         btnForward.disabled = true;
         scrubBar.disabled = true;
-        btnPlayPause.textContent = '🖼 Image';
+        btnPlayPause.textContent = 'Image';
         timeDisplay.textContent = 'STATIC';
       } else {
         imagePlayer.style.display = 'none';
@@ -450,9 +473,9 @@
         scrubBar.disabled = false;
 
         video.play().then(() => {
-          btnPlayPause.textContent = '⏸ Pause';
+          btnPlayPause.textContent = 'Pause';
         }).catch(() => {
-          btnPlayPause.textContent = '▶ Play';
+          btnPlayPause.textContent = 'Play';
         });
       }
     }
@@ -462,10 +485,10 @@
       if (!currentMedia || currentMedia.type === 'image') return;
       if (video.paused || video.ended) {
         video.play();
-        btnPlayPause.textContent = '⏸ Pause';
+        btnPlayPause.textContent = 'Pause';
       } else {
         video.pause();
-        btnPlayPause.textContent = '▶ Play';
+        btnPlayPause.textContent = 'Play';
       }
     });
 
@@ -546,7 +569,6 @@
     }
 
     btnUndo.addEventListener('click', undoLast);
-
     btnClear.addEventListener('click', clearCanvas);
 
     function clearCanvas() {
@@ -568,7 +590,7 @@
       return `rgba(${r}, ${g}, ${b}, 0.25)`;
     }
 
-    // --- Sharp Broadcast Arrow ---
+    // --- Sharp Arrow ---
     function drawArrow(fromX, fromY, toX, toY, color, width) {
       const angle = Math.atan2(toY - fromY, toX - fromX);
       const dist = Math.hypot(toX - fromX, toY - fromY);
@@ -646,7 +668,7 @@
     canvas.addEventListener('mousedown', (e) => {
       if (currentMedia && currentMedia.type === 'video' && !video.paused) {
         video.pause();
-        btnPlayPause.textContent = '▶ Play';
+        btnPlayPause.textContent = 'Play';
       }
 
       const coords = getCoords(e);
@@ -664,7 +686,6 @@
         return;
       }
 
-      // Save undo checkpoint right before new stroke begins
       pushUndoState();
 
       isDrawing = true;
@@ -729,9 +750,99 @@
       }
     });
 
+    // --- Recording Engine ---
+    function getSupportedMimeType() {
+      const candidates = [
+        { mime: 'video/mp4;codecs=avc1', ext: 'mp4' },
+        { mime: 'video/mp4;codecs=avc1.42E01E,mp4a.40.2', ext: 'mp4' },
+        { mime: 'video/mp4', ext: 'mp4' },
+        { mime: 'video/webm;codecs=h264', ext: 'webm' },
+        { mime: 'video/webm;codecs=vp9,opus', ext: 'webm' },
+        { mime: 'video/webm', ext: 'webm' }
+      ];
+      for (const candidate of candidates) {
+        if (MediaRecorder.isTypeSupported(candidate.mime)) {
+          return candidate;
+        }
+      }
+      return { mime: '', ext: 'webm' };
+    }
+
+    async function startRecording() {
+      try {
+        recordStream = await navigator.mediaDevices.getDisplayMedia({
+          video: {
+            displaySurface: 'browser',
+            frameRate: { ideal: 60, max: 60 }
+          },
+          audio: true,
+          preferCurrentTab: true
+        });
+
+        const selectedFormat = getSupportedMimeType();
+        const options = selectedFormat.mime ? { mimeType: selectedFormat.mime, videoBitsPerSecond: 6000000 } : {};
+
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(recordStream, options);
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            recordedChunks.push(e.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: selectedFormat.mime || 'video/webm' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          const timestamp = new Date().toISOString().slice(11, 19).replace(/:/g, '-');
+          a.href = url;
+          a.download = `telestrator-rec-${timestamp}.${selectedFormat.ext}`;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+          }, 100);
+
+          btnRecord.classList.remove('recording');
+          btnRecord.textContent = 'Rec';
+        };
+
+        recordStream.getVideoTracks()[0].onended = () => {
+          if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+          }
+        };
+
+        mediaRecorder.start(1000);
+        btnRecord.classList.add('recording');
+        btnRecord.textContent = 'Stop Rec';
+
+      } catch (err) {
+        console.warn('Recording cancelled or not supported:', err);
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+      }
+      if (recordStream) {
+        recordStream.getTracks().forEach(track => track.stop());
+      }
+    }
+
+    btnRecord.addEventListener('click', () => {
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        stopRecording();
+      } else {
+        startRecording();
+      }
+    });
+
     // Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
-      // Ctrl+Z or Cmd+Z for Undo
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         undoLast();
